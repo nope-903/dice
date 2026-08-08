@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주사위 굴리기</title>
+    <!-- 카카오 SDK 스크립트 로드 -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-l+xbElFbuPZ2CGXNgmYQvQp8jL5e8L5e8L5e8L5e8L5e8L5e8L5e8L5e8L5e8" crossorigin="anonymous"></script>
+    <script>
+        // 카카오 앱 키 초기화 (본인의 JavaScript 키로 변경해주세요)
+        Kakao.init('c32d05a6a53f9fd3263531d9f8967fe0');
+    </script>
+</head>
+<body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+
+    <h1>🎲 주사위 굴리기</h1>
+    
+    <!-- 주사위 선택 드롭다운 메뉴 -->
+    <div style="margin: 20px;">
+        <label for="dice-select">주사위 선택: </label>
+        <select id="dice-select" style="padding: 5px; font-size: 16px;">
+            <option value="6">1d6 (6면체)</option>
+            <option value="10">1d10 (10면체)</option>
+            <option value="100">1d100 (100면체)</option>
+        </select>
+    </div>
+
+    <!-- 결과 표시 영역 -->
+    <div id="dice-result" style="font-size: 48px; margin: 20px; font-weight: bold;">?</div>
+    
+    <button onclick="rollDice()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">주사위 굴리기</button>
+    <br><br>
+    
+    <!-- 카카오 공유 버튼 -->
+    <button id="kakao-share-btn" onclick="shareToKakao()" style="background-color: #fee500; padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; display: none; font-weight: bold;">카카오톡으로 결과 공유하기</button>
+
+    <script>
+        let currentDiceType = 6;
+        let currentResult = 0;
+
+        function rollDice() {
+            // 드롭다운에서 선택된 주사위 면수 가져오기 (6, 10, 100 등)
+            const selectElement = document.getElementById('dice-select');
+            currentDiceType = parseInt(selectElement.value);
+
+            // 1부터 선택한 면수까지의 랜덤 숫자 생성
+            currentResult = Math.floor(Math.random() * currentDiceType) + 1;
+            
+            // 화면에 결과 출력
+            document.getElementById('dice-result').innerText = currentResult;
+            
+            // 결과가 나오면 공유 버튼 활성화
+            document.getElementById('kakao-share-btn').style.display = 'inline-block';
+        }
+
+        function shareToKakao() {
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: `🎲 1d${currentDiceType} 주사위 굴리기 결과!`,
+                    description: `선택한 주사위: 1d${currentDiceType}\n나온 숫자: [ ${currentResult} ]`,
+                    imageUrl: 'https://your-domain.com/dice-image.png', // 주사위 대표 이미지 URL (필요시 수정)
+                    link: {
+                        mobileWebUrl: 'https://your-domain.com',
+                        webUrl: 'https://your-domain.com',
+                    },
+                },
+                buttons: [
+                    {
+                        title: '나도 던지러 가기',
+                        link: {
+                            mobileWebUrl: 'https://your-domain.com',
+                            webUrl: 'https://your-domain.com',
+                        },
+                    },
+                ],
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2,51 +2,85 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>주사위 굴리기</title>
-    <!-- 카카오 SDK 스크립트 로드 (에러 유발하는 무결성 검증 속성 제거) -->
+    <title>1d100 주사위 판정기</title>
+    <!-- 카카오 SDK 스크립트 로드 -->
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script>
-        // 본인의 JavaScript 키
+        // 알려주신 성공 키 반영 완료!
         Kakao.init('c0d501bbd271a9800acbc4c63c9b75e8');
     </script>
 </head>
 <body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
 
-    <h1>🎲 주사위 굴리기</h1>
+    <h1>🎲 1d100 주사위 판정기</h1>
     
-    <!-- 주사위 선택 드롭다운 메뉴 -->
+    <!-- 판정치 입력 필드 -->
     <div style="margin: 20px;">
-        <label for="dice-select">주사위 선택: </label>
-        <select id="dice-select" style="padding: 5px; font-size: 16px;">
-            <option value="6">1d6 (6면체)</option>
-            <option value="10">1d10 (10면체)</option>
-            <option value="100">1d100 (100면체)</option>
-        </select>
+        <label for="target-value" style="font-weight: bold;">판정치 (1~100) 입력: </label>
+        <input type="number" id="target-value" placeholder="예: 50" min="1" max="100" style="padding: 8px; font-size: 16px; width: 80px; border: 2px solid #ccc; border-radius: 5px;">
     </div>
 
     <!-- 결과 표시 영역 -->
-    <div id="dice-result" style="font-size: 48px; margin: 20px; font-weight: bold;">?</div>
+    <div id="dice-result" style="font-size: 60px; margin: 20px; font-weight: bold; color: #2c3e50;">?</div>
+    <div id="judgment-result" style="font-size: 24px; margin: 20px; font-weight: bold; color: #999;">결과 대기 중...</div>
     
-    <button onclick="rollDice()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">주사위 굴리기</button>
+    <button onclick="rollDice()" style="padding: 12px 24px; font-size: 18px; cursor: pointer; background-color: #34495e; color: white; border: none; border-radius: 8px; font-weight: bold;">주사위 굴리기</button>
     <br><br>
     
     <!-- 카카오 공유 버튼 -->
-    <button id="kakao-share-btn" onclick="shareToKakao()" style="background-color: #fee500; padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; display: none; font-weight: bold;">카카오톡으로 결과 공유하기</button>
+    <button id="kakao-share-btn" onclick="shareToKakao()" style="background-color: #fee500; padding: 12px 24px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; display: none; font-weight: bold; color: #000;">카카오톡으로 결과 공유하기</button>
 
     <script>
-        let currentDiceType = 6;
+        // 전역 변수로 설정하여 공유 함수에서도 안전하게 읽을 수 있도록 수정
         let currentResult = 0;
+        let judgmentText = '';
+        let currentTargetValue = '';
 
         function rollDice() {
-            // 드롭다운에서 선택된 주사위 면수 가져오기 (6, 10, 100 등)
-            const selectElement = document.getElementById('dice-select');
-            currentDiceType = parseInt(selectElement.value);
-
-            // 1부터 선택한 면수까지의 랜덤 숫자 생성
-            currentResult = Math.floor(Math.random() * currentDiceType) + 1;
+            // 1~100 사이의 랜덤 숫자 생성
+            currentResult = Math.floor(Math.random() * 100) + 1;
             
-            // 화면에 결과 출력
+            // 화면에 주사위 결과 출력
             document.getElementById('dice-result').innerText = currentResult;
+            
+            // 판정치 입력값 가져오기
+            currentTargetValue = document.getElementById('target-value').value;
+            let judgmentResultElement = document.getElementById('judgment-result');
+
+            // 판정 로직
+            if (currentTargetValue) {
+                let target = parseInt(currentTargetValue);
+
+                if (currentResult === 1) {
+                    judgmentText = '대성공';
+                    judgmentResultElement.style.color = '#e74c3c'; // 대성공은 빨간색 강조
+                } else if (currentResult === 100) {
+                    judgmentText = '대실패';
+                    judgmentResultElement.style.color = '#7f8c8d'; 
+                } else if (target <= 50 && currentResult >= 96) {
+                    judgmentText = '대실패';
+                    judgmentResultElement.style.color = '#7f8c8d';
+                } else if (currentResult <= target / 5) {
+                    judgmentText = '극단적 성공';
+                    judgmentResultElement.style.color = '#d35400';
+                } else if (currentResult <= target / 2) {
+                    judgmentText = '어려운 성공';
+                    judgmentResultElement.style.color = '#27ae60';
+                } else if (currentResult <= target) {
+                    judgmentText = '성공';
+                    judgmentResultElement.style.color = '#2980b9';
+                } else {
+                    judgmentText = '실패';
+                    judgmentResultElement.style.color = '#7f8c8d';
+                }
+
+                judgmentResultElement.innerHTML = `판정 결과: [ ${judgmentText} ]`;
+            } else {
+                // 판정치 미입력 시
+                judgmentText = '미입력';
+                judgmentResultElement.innerHTML = '판정치 미입력 (단순 굴림)';
+                judgmentResultElement.style.color = '#999';
+            }
             
             // 결과가 나오면 공유 버튼 활성화
             document.getElementById('kakao-share-btn').style.display = 'inline-block';
@@ -56,19 +90,17 @@
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `🎲 1d${currentDiceType} 주사위 굴리기 결과!`,
-                    description: `선택한 주사위: 1d${currentDiceType}\n나온 숫자: [ ${currentResult} ]`,
+                    title: `🎲 1d100 판정 결과: [ ${judgmentText} ]`,
+                    description: `주사위 눈금: ${currentResult}\n입력한 판정치: ${currentTargetValue || '미입력'}`,
                     link: {
-                        // 공유된 카드를 눌렀을 때 깃허브 웹앱으로 이동하도록 수정
                         mobileWebUrl: 'https://nope-903.github.io/dice',
                         webUrl: 'https://nope-903.github.io/dice',
                     },
                 },
                 buttons: [
                     {
-                        title: '나도 던지러 가기',
+                        title: '나도 주사위 굴리기',
                         link: {
-                            // '나도 던지러 가기' 버튼을 눌렀을 때 깃허브 웹앱으로 이동
                             mobileWebUrl: 'https://nope-903.github.io/dice',
                             webUrl: 'https://nope-903.github.io/dice',
                         },

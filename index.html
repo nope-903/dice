@@ -3,89 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <title>1d100 주사위 판정기</title>
-    <!-- 카카오 SDK 스크립트 로드 -->
+    <!-- 카카오 SDK -->
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script>
-        // 알려주신 성공 키 반영 완료!
+        // 정상 작동하는 앱 키 유지
         Kakao.init('c0d501bbd271a9800acbc4c63c9b75e8');
     </script>
-</head>
-<body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-
-    <h1>🎲 1d100 주사위 판정기</h1>
     
-    <!-- 판정치 입력 필드 -->
-    <div style="margin: 20px;">
-        <label for="target-value" style="font-weight: bold;">판정치 (1~100) 입력: </label>
-        <input type="number" id="target-value" placeholder="예: 50" min="1" max="100" style="padding: 8px; font-size: 16px; width: 80px; border: 2px solid #ccc; border-radius: 5px;">
+    <style>
+        /* 기본 리셋 및 화면 중앙 정렬 */
+        body { 
+            margin: 0; min-height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding-top: 40px; transition: background-color 0.3s; 
+        }
+        
+        /* 테마 선택기 드롭다운 UI */
+        .theme-selector { margin-bottom: 30px; }
+        .theme-selector select { padding: 8px; font-size: 16px; border-radius: 5px; outline: none; }
+
+        /* =========================================
+           1. 📺 레트로 윈도우 알림창 테마 (요청하신 스타일)
+           ========================================= */
+        body.theme-windows { background-color: #008080; font-family: '굴림', Gulim, sans-serif; }
+        .theme-windows .app-container { 
+            width: 320px; background: #c0c0c0; 
+            border: 2px solid; border-color: #dfdfdf #000000 #000000 #dfdfdf; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3); 
+        }
+        .theme-windows .title-bar { 
+            background: #000080; color: white; padding: 3px 5px; 
+            font-weight: bold; font-size: 14px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .theme-windows .close-btn { 
+            background: #c0c0c0; border: 1px solid; border-color: #dfdfdf #000000 #000000 #dfdfdf; 
+            width: 16px; height: 16px; font-size: 11px; font-weight: bold; 
+            color: black; text-align: center; line-height: 14px; cursor: default; 
+        }
+        .theme-windows .window-body { padding: 15px 20px 20px; text-align: center; color: black; }
+        .theme-windows input { 
+            padding: 2px; border: 2px solid; border-color: #000000 #dfdfdf #dfdfdf #000000; 
+            width: 60px; text-align: center; font-size: 16px; outline: none;
+        }
+        .theme-windows button.action-btn { 
+            background: #c0c0c0; border: 2px solid; border-color: #dfdfdf #000000 #000000 #dfdfdf; 
+            padding: 6px 15px; margin-top: 10px; cursor: pointer; font-family: '굴림', Gulim; font-size: 14px;
+        }
+        .theme-windows button.action-btn:active { 
+            border-color: #000000 #dfdfdf #dfdfdf #000000; padding: 7px 14px 5px 16px; 
+        }
+
+        /* =========================================
+           2. 📝 모던 화이트 (깔끔한 문서형 테마)
+           ========================================= */
+        body.theme-clean { background-color: #f7f7f5; color: #37352f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .theme-clean .app-container { 
+            width: 350px; background: #ffffff; padding: 30px; 
+            border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            text-align: center; border: 1px solid #e9e9e7;
+        }
+        .theme-clean .title-bar { display: none; } /* 타이틀바 숨김 */
+        .theme-clean input { 
+            padding: 8px; border: 1px solid #e0e0ce; border-radius: 4px; 
+            width: 70px; font-size: 16px; text-align: center; outline: none; transition: border 0.2s;
+        }
+        .theme-clean input:focus { border-color: #2eaadc; }
+        .theme-clean button.action-btn { 
+            background: #f1f1ef; color: #37352f; border: 1px solid #e0e0ce; 
+            border-radius: 5px; padding: 10px 20px; font-size: 15px; 
+            cursor: pointer; transition: background 0.2s; margin-top: 10px; width: 100%; font-weight: 500;
+        }
+        .theme-clean button.action-btn:hover { background: #e9e9e7; }
+        
+        /* =========================================
+           3. 🌌 다크 RPG (묵직한 게임형 테마)
+           ========================================= */
+        body.theme-rpg { background-color: #1a1a1a; color: #e0e0e0; font-family: 'Georgia', serif; }
+        .theme-rpg .app-container { 
+            width: 350px; background: #242424; padding: 30px; 
+            border: 1px solid #444; border-radius: 8px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8); text-align: center; 
+        }
+        .theme-rpg .title-bar { display: none; }
+        .theme-rpg input { 
+            padding: 8px; background: #121212; border: 1px solid #555; 
+            color: #fff; border-radius: 4px; width: 70px; font-size: 16px; text-align: center; outline: none;
+        }
+        .theme-rpg button.action-btn { 
+            background: #333; color: #eee; border: 1px solid #555; 
+            border-radius: 4px; padding: 12px 20px; font-size: 15px; 
+            cursor: pointer; font-family: 'Georgia', serif; letter-spacing: 1px; 
+            transition: all 0.2s; margin-top: 15px; width: 100%;
+        }
+        .theme-rpg button.action-btn:hover { background: #444; border-color: #777; }
+
+        /* 카카오 공유 버튼 공통 디자인(테마별 버튼보다 우선 적용) */
+        button#kakao-share-btn { 
+            background-color: #fee500 !important; color: #000 !important; 
+            border: none !important; font-weight: bold; font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<!-- 기본 테마 클래스를 지정해둡니다 -->
+<body class="theme-windows"> 
+
+    <!-- 테마 선택 드롭다운 -->
+    <div class="theme-selector">
+        <select id="theme-select" onchange="changeTheme()">
+            <option value="theme-windows">📺 1. 레트로 윈도우 알림창</option>
+            <option value="theme-clean">📝 2. 모던 화이트 (깔끔한 문서형)</option>
+            <option value="theme-rpg">🌌 3. 다크 RPG (묵직한 게임형)</option>
+        </select>
     </div>
 
-    <!-- 결과 표시 영역 -->
-    <div id="dice-result" style="font-size: 60px; margin: 20px; font-weight: bold; color: #2c3e50;">?</div>
-    <div id="judgment-result" style="font-size: 24px; margin: 20px; font-weight: bold; color: #999;">결과 대기 중...</div>
-    
-    <button onclick="rollDice()" style="padding: 12px 24px; font-size: 18px; cursor: pointer; background-color: #34495e; color: white; border: none; border-radius: 8px; font-weight: bold;">주사위 굴리기</button>
-    <br><br>
-    
-    <!-- 카카오 공유 버튼 -->
-    <button id="kakao-share-btn" onclick="shareToKakao()" style="background-color: #fee500; padding: 12px 24px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; display: none; font-weight: bold; color: #000;">카카오톡으로 결과 공유하기</button>
+    <!-- 주사위 앱 메인 컨테이너 -->
+    <div class="app-container">
+        
+        <!-- 윈도우 테마 전용 타이틀바 -->
+        <div class="title-bar">
+            <span>Dice_Roller.exe</span>
+            <div class="close-btn">X</div>
+        </div>
+        
+        <div class="window-body">
+            <h1 style="margin-top:0; font-size: 22px; margin-bottom: 20px;">🎲 1d100 판정기</h1>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="target-value" style="font-size: 15px;">판정치 (1~100): </label>
+                <input type="number" id="target-value" placeholder="예:50" min="1" max="100">
+            </div>
+
+            <div id="dice-result" style="font-size: 64px; font-weight: bold; margin: 15px 0; color: inherit;">?</div>
+            <div id="judgment-result" style="font-size: 18px; font-weight: bold; min-height: 25px; margin-bottom: 20px; color: inherit;">결과 대기 중...</div>
+            
+            <button class="action-btn" onclick="rollDice()">주사위 굴리기</button>
+            <button class="action-btn" id="kakao-share-btn" onclick="shareToKakao()" style="display: none;">카카오톡으로 공유하기</button>
+        </div>
+    </div>
 
     <script>
-        // 전역 변수로 설정하여 공유 함수에서도 안전하게 읽을 수 있도록 수정
+        // 전역 변수
         let currentResult = 0;
         let judgmentText = '';
         let currentTargetValue = '';
 
-        function rollDice() {
-            // 1~100 사이의 랜덤 숫자 생성
-            currentResult = Math.floor(Math.random() * 100) + 1;
+        // 테마 변경 함수 (선택 시 즉각 적용)
+        function changeTheme() {
+            const selectedTheme = document.getElementById('theme-select').value;
+            document.body.className = selectedTheme;
             
-            // 화면에 주사위 결과 출력
+            // 다크 테마일 때 기본 글자색 조정
+            const resultElement = document.getElementById('judgment-result');
+            if(resultElement.innerText === '결과 대기 중...') {
+                resultElement.style.color = 'inherit'; 
+            }
+        }
+
+        // 주사위 굴리기 로직 (기능 동일)
+        function rollDice() {
+            currentResult = Math.floor(Math.random() * 100) + 1;
             document.getElementById('dice-result').innerText = currentResult;
             
-            // 판정치 입력값 가져오기
             currentTargetValue = document.getElementById('target-value').value;
             let judgmentResultElement = document.getElementById('judgment-result');
+            
+            // 현재 활성화된 테마가 다크 테마인지 확인 (색상 가독성용)
+            let isDarkTheme = document.body.classList.contains('theme-rpg');
 
-            // 판정 로직
             if (currentTargetValue) {
                 let target = parseInt(currentTargetValue);
 
                 if (currentResult === 1) {
                     judgmentText = '대성공';
-                    judgmentResultElement.style.color = '#e74c3c'; // 대성공은 빨간색 강조
+                    judgmentResultElement.style.color = isDarkTheme ? '#ff6b6b' : '#e74c3c';
                 } else if (currentResult === 100) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#7f8c8d'; 
+                    judgmentResultElement.style.color = isDarkTheme ? '#888' : '#7f8c8d';
                 } else if (target <= 50 && currentResult >= 96) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#7f8c8d';
+                    judgmentResultElement.style.color = isDarkTheme ? '#888' : '#7f8c8d';
                 } else if (currentResult <= target / 5) {
                     judgmentText = '극단적 성공';
-                    judgmentResultElement.style.color = '#d35400';
+                    judgmentResultElement.style.color = isDarkTheme ? '#f39c12' : '#d35400';
                 } else if (currentResult <= target / 2) {
                     judgmentText = '어려운 성공';
-                    judgmentResultElement.style.color = '#27ae60';
+                    judgmentResultElement.style.color = isDarkTheme ? '#2ecc71' : '#27ae60';
                 } else if (currentResult <= target) {
                     judgmentText = '성공';
-                    judgmentResultElement.style.color = '#2980b9';
+                    judgmentResultElement.style.color = isDarkTheme ? '#3498db' : '#2980b9';
                 } else {
                     judgmentText = '실패';
-                    judgmentResultElement.style.color = '#7f8c8d';
+                    judgmentResultElement.style.color = isDarkTheme ? '#888' : '#7f8c8d';
                 }
 
                 judgmentResultElement.innerHTML = `판정 결과: [ ${judgmentText} ]`;
             } else {
-                // 판정치 미입력 시
                 judgmentText = '미입력';
                 judgmentResultElement.innerHTML = '판정치 미입력 (단순 굴림)';
-                judgmentResultElement.style.color = '#999';
+                judgmentResultElement.style.color = isDarkTheme ? '#aaa' : '#999';
             }
             
-            // 결과가 나오면 공유 버튼 활성화
-            document.getElementById('kakao-share-btn').style.display = 'inline-block';
+            document.getElementById('kakao-share-btn').style.display = 'block';
         }
 
+        // 카카오톡 공유 로직 (기능 동일)
         function shareToKakao() {
             Kakao.Share.sendDefault({
                 objectType: 'feed',

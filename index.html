@@ -21,7 +21,6 @@
     <!-- 카카오 SDK -->
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script>
-        // 정상 작동하는 앱 키 유지
         Kakao.init('c0d501bbd271a9800acbc4c63c9b75e8');
     </script>
     
@@ -52,6 +51,7 @@
             display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
         }
         
+        /* 공통 버튼 디자인 (주사위 굴리기 & 복사하기 동일) */
         button.action-btn { 
             background: #f1f1ef; color: #37352f; border: 1px solid #e0e0ce; 
             border-radius: 5px; padding: 10px 20px; font-size: 15px; 
@@ -59,6 +59,7 @@
         }
         button.action-btn:hover { background: #e9e9e7; }
         
+        /* 카카오 공유 버튼 디자인 */
         button#kakao-share-btn { 
             background-color: #fee500 !important; color: #000 !important; 
             border: none !important; font-weight: bold; font-family: sans-serif;
@@ -76,14 +77,20 @@
         </div>
 
         <label class="checkbox-container">
-            <input type="checkbox" id="show-time-chk">
+            <input type="checkbox" id="show-time-chk" checked>
             주사위 굴린 시간 기록하기
         </label>
 
         <div id="dice-result" style="font-size: 64px; font-weight: bold; margin: 15px 0; color: inherit;">?</div>
         <div id="judgment-result" style="font-size: 18px; font-weight: bold; min-height: 25px; margin-bottom: 20px; color: #999;">결과 대기 중...</div>
         
+        <!-- 주사위 굴리기 버튼 -->
         <button class="action-btn" onclick="rollDice()">주사위 굴리기</button>
+        
+        <!-- 결과 복사하기 버튼 (주사위 굴리기와 동일한 모양/색상, 결과 전까지 숨김) -->
+        <button class="action-btn" id="copy-result-btn" onclick="copyResultText()" style="display: none;">결과 복사하기</button>
+
+        <!-- 카카오톡 공유 버튼 -->
         <button class="action-btn" id="kakao-share-btn" onclick="shareToKakao()" style="display: none;">카카오톡으로 공유하기</button>
     </div>
 
@@ -100,7 +107,7 @@
             const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `(${year}/${month}/${day} ${hours}:${minutes})`;
+            return `${year}/${month}/${day} ${hours}:${minutes}`;
         }
 
         function rollDice() {
@@ -151,17 +158,36 @@
             }
 
             if (rolledTimeText) {
-                judgmentResultElement.innerHTML += `<br><span style="font-size: 13px; color: #888; font-weight: normal;">${rolledTimeText}</span>`;
+                judgmentResultElement.innerHTML += `<br><span style="font-size: 13px; color: #888; font-weight: normal;">⏱️${rolledTimeText}</span>`;
             }
             
+            // 결과가 나오면 복사 버튼과 카카오 공유 버튼 활성화
+            document.getElementById('copy-result-btn').style.display = 'block';
             document.getElementById('kakao-share-btn').style.display = 'block';
         }
 
-        function shareToKakao() {
-            // 카카오톡 설명란 텍스트를 2줄로 압축 (눈금과 판정치를 한 줄로 합침)
-            let descriptionString = `눈금: ${currentResult} (판정치: ${currentTargetValue || '미입력'})`;
+        // 결과 텍스트를 클립보드에 복사하는 함수
+        function copyResultText() {
+            let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
+            let textToCopy = `🎲 1d100 판정 결과: [ ${judgmentText} ]\n주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            
             if (rolledTimeText) {
-                descriptionString += `\n⏱️ ${rolledTimeText}`;
+                textToCopy += `\n⏱️${rolledTimeText}`;
+            }
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('결과가 클립보드에 복사되었습니다!');
+            }).catch(err => {
+                alert('복사에 실패했습니다.');
+            });
+        }
+
+        // 카카오톡 공유 로직
+        function shareToKakao() {
+            let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
+            let descriptionString = `주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            if (rolledTimeText) {
+                descriptionString += `\n⏱️${rolledTimeText}`;
             }
 
             Kakao.Share.sendDefault({

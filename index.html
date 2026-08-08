@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1d100 주사위 판정기</title>
 
-    <!-- 🌟 카카오톡, 디스코드, 페이스북 등 공통 미리보기 (오픈 그래프) -->
+    <!-- 🌟 카카오톡, 디스코드 공통 미리보기 (오픈 그래프) -->
     <meta property="og:title" content="🎲 1d100 주사위 판정기">
     <meta property="og:description" content="TRPG 및 커뮤니티용 1d100 주사위를 굴리고 결과를 확인해보세요!">
-    <!-- 아래 image의 content 주소에 원하시는 이미지 링크를 넣으시면 미리보기 사진이 바뀝니다 -->
     <meta property="og:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
     <meta property="og:url" content="https://nope-903.github.io/dice">
     <meta property="og:type" content="website">
@@ -37,18 +36,24 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
         
-        /* 모던 화이트 (깔끔한 문서형 테마) 메인 컨테이너 */
+        /* 모던 화이트 메인 컨테이너 */
         .app-container { 
             width: 350px; background: #ffffff; padding: 30px; 
             border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
             text-align: center; border: 1px solid #e9e9e7;
         }
         
-        input { 
+        input[type="number"] { 
             padding: 8px; border: 1px solid #e0e0ce; border-radius: 4px; 
             width: 70px; font-size: 16px; text-align: center; outline: none; transition: border 0.2s;
         }
-        input:focus { border-color: #2eaadc; }
+        input[type="number"]:focus { border-color: #2eaadc; }
+        
+        /* 체크박스 스타일 */
+        .checkbox-container {
+            margin-bottom: 20px; font-size: 14px; color: #555;
+            display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
+        }
         
         button.action-btn { 
             background: #f1f1ef; color: #37352f; border: 1px solid #e0e0ce; 
@@ -68,12 +73,18 @@
 <body> 
     <!-- 주사위 앱 메인 컨테이너 -->
     <div class="app-container">
-        <h1 style="margin-top:0; font-size: 22px; margin-bottom: 20px;">ROLL 1d100</h1>
+        <h1 style="margin-top:0; font-size: 22px; margin-bottom: 20px;">🎲 1d100 판정기</h1>
         
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 15px;">
             <label for="target-value" style="font-size: 15px;">판정치 (1~100): </label>
             <input type="number" id="target-value" placeholder="예:50" min="1" max="100">
         </div>
+
+        <!-- ⏱️ 시간 표기 체크박스 추가 -->
+        <label class="checkbox-container">
+            <input type="checkbox" id="show-time-chk">
+            주사위 굴린 시간 기록하기
+        </label>
 
         <div id="dice-result" style="font-size: 64px; font-weight: bold; margin: 15px 0; color: inherit;">?</div>
         <div id="judgment-result" style="font-size: 18px; font-weight: bold; min-height: 25px; margin-bottom: 20px; color: #999;">결과 대기 중...</div>
@@ -87,6 +98,18 @@
         let currentResult = 0;
         let judgmentText = '';
         let currentTargetValue = '';
+        let rolledTimeText = ''; // 기록된 시간을 저장할 변수
+
+        // 현재 시간을 (YYYY/MM/DD HH:MM) 형식으로 반환하는 함수
+        function getFormattedTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `(${year}/${month}/${day} ${hours}:${minutes})`;
+        }
 
         // 주사위 굴리기 로직
         function rollDice() {
@@ -96,6 +119,15 @@
             currentTargetValue = document.getElementById('target-value').value;
             let judgmentResultElement = document.getElementById('judgment-result');
             
+            // 시간 표기 체크 여부 확인
+            const isTimeChecked = document.getElementById('show-time-chk').checked;
+            if (isTimeChecked) {
+                rolledTimeText = getFormattedTime();
+            } else {
+                rolledTimeText = '';
+            }
+
+            // 판정 로직
             if (currentTargetValue) {
                 let target = parseInt(currentTargetValue);
 
@@ -128,17 +160,28 @@
                 judgmentResultElement.innerHTML = '판정치 미입력 (단순 굴림)';
                 judgmentResultElement.style.color = '#999';
             }
+
+            // 시간이 기록된 경우 결과창 아래에 작게 추가 표시
+            if (rolledTimeText) {
+                judgmentResultElement.innerHTML += `<br><span style="font-size: 13px; color: #888; font-weight: normal;">${rolledTimeText}</span>`;
+            }
             
             document.getElementById('kakao-share-btn').style.display = 'block';
         }
 
         // 카카오톡 공유 로직
         function shareToKakao() {
+            // 카카오톡 설명란 텍스트 조합
+            let descriptionString = `주사위 눈금: ${currentResult}\n입력한 판정치: ${currentTargetValue || '미입력'}`;
+            if (rolledTimeText) {
+                descriptionString += `\n${rolledTimeText}`;
+            }
+
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: `🎲 1d100 판정 결과: [ ${judgmentText} ]`,
-                    description: `주사위 눈금: ${currentResult}\n입력한 판정치: ${currentTargetValue || '미입력'}`,
+                    description: descriptionString,
                     link: {
                         mobileWebUrl: 'https://nope-903.github.io/dice',
                         webUrl: 'https://nope-903.github.io/dice',

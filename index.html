@@ -26,7 +26,6 @@
     </script>
     
     <style>
-        /* 기본 리셋 및 화면 중앙 정렬 */
         body { 
             margin: 0; min-height: 100vh; 
             display: flex; flex-direction: column; align-items: center; 
@@ -36,7 +35,6 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
         
-        /* 모던 화이트 메인 컨테이너 */
         .app-container { 
             width: 350px; background: #ffffff; padding: 30px; 
             border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
@@ -49,7 +47,6 @@
         }
         input[type="number"]:focus { border-color: #2eaadc; }
         
-        /* 체크박스 스타일 */
         .checkbox-container {
             margin-bottom: 20px; font-size: 14px; color: #555;
             display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
@@ -62,7 +59,6 @@
         }
         button.action-btn:hover { background: #e9e9e7; }
         
-        /* 카카오 공유 버튼 디자인 */
         button#kakao-share-btn { 
             background-color: #fee500 !important; color: #000 !important; 
             border: none !important; font-weight: bold; font-family: sans-serif;
@@ -71,7 +67,6 @@
 </head>
 
 <body> 
-    <!-- 주사위 앱 메인 컨테이너 -->
     <div class="app-container">
         <h1 style="margin-top:0; font-size: 22px; margin-bottom: 20px;">🎲 1d100 판정기</h1>
         
@@ -80,7 +75,6 @@
             <input type="number" id="target-value" placeholder="예:50" min="1" max="100">
         </div>
 
-        <!-- ⏱️ 시간 표기 체크박스 추가 -->
         <label class="checkbox-container">
             <input type="checkbox" id="show-time-chk">
             주사위 굴린 시간 기록하기
@@ -94,13 +88,11 @@
     </div>
 
     <script>
-        // 전역 변수
         let currentResult = 0;
         let judgmentText = '';
         let currentTargetValue = '';
-        let rolledTimeText = ''; // 기록된 시간을 저장할 변수
+        let rolledTimeText = ''; 
 
-        // 현재 시간을 (YYYY/MM/DD HH:MM) 형식으로 반환하는 함수
         function getFormattedTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -111,7 +103,6 @@
             return `(${year}/${month}/${day} ${hours}:${minutes})`;
         }
 
-        // 주사위 굴리기 로직
         function rollDice() {
             currentResult = Math.floor(Math.random() * 100) + 1;
             document.getElementById('dice-result').innerText = currentResult;
@@ -119,7 +110,6 @@
             currentTargetValue = document.getElementById('target-value').value;
             let judgmentResultElement = document.getElementById('judgment-result');
             
-            // 시간 표기 체크 여부 확인
             const isTimeChecked = document.getElementById('show-time-chk').checked;
             if (isTimeChecked) {
                 rolledTimeText = getFormattedTime();
@@ -127,31 +117,30 @@
                 rolledTimeText = '';
             }
 
-            // 판정 로직
             if (currentTargetValue) {
                 let target = parseInt(currentTargetValue);
 
                 if (currentResult === 1) {
                     judgmentText = '대성공';
-                    judgmentResultElement.style.color = '#8e44ad'; // 대성공 (보라색)
+                    judgmentResultElement.style.color = '#8e44ad'; 
                 } else if (currentResult === 100) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 대실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 } else if (target <= 50 && currentResult >= 96) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 대실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 } else if (currentResult <= target / 5) {
                     judgmentText = '극단적 성공';
-                    judgmentResultElement.style.color = '#d35400'; // 극단적 성공 (오렌지색)
+                    judgmentResultElement.style.color = '#d35400'; 
                 } else if (currentResult <= target / 2) {
                     judgmentText = '어려운 성공';
-                    judgmentResultElement.style.color = '#27ae60'; // 어려운 성공 (초록색)
+                    judgmentResultElement.style.color = '#27ae60'; 
                 } else if (currentResult <= target) {
                     judgmentText = '성공';
-                    judgmentResultElement.style.color = '#2980b9'; // 성공 (파란색)
+                    judgmentResultElement.style.color = '#2980b9'; 
                 } else {
                     judgmentText = '실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 }
 
                 judgmentResultElement.innerHTML = `판정 결과: [ ${judgmentText} ]`;
@@ -161,7 +150,6 @@
                 judgmentResultElement.style.color = '#999';
             }
 
-            // 시간이 기록된 경우 결과창 아래에 작게 추가 표시
             if (rolledTimeText) {
                 judgmentResultElement.innerHTML += `<br><span style="font-size: 13px; color: #888; font-weight: normal;">${rolledTimeText}</span>`;
             }
@@ -169,12 +157,11 @@
             document.getElementById('kakao-share-btn').style.display = 'block';
         }
 
-        // 카카오톡 공유 로직
         function shareToKakao() {
-            // 카카오톡 설명란 텍스트 조합
-            let descriptionString = `주사위 눈금: ${currentResult}\n입력한 판정치: ${currentTargetValue || '미입력'}`;
+            // 카카오톡 설명란 텍스트를 2줄로 압축 (눈금과 판정치를 한 줄로 합침)
+            let descriptionString = `눈금: ${currentResult} (판정치: ${currentTargetValue || '미입력'})`;
             if (rolledTimeText) {
-                descriptionString += `\n${rolledTimeText}`;
+                descriptionString += `\n⏱️ ${rolledTimeText}`;
             }
 
             Kakao.Share.sendDefault({

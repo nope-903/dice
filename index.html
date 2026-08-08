@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1d100 주사위 판정기</title>
+    <title>1d100 주사위 굴리기</title>
+    
+    <!-- 🎲 주사위 이모지 파비콘 설정 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 
     <!-- 🌟 카카오톡, 디스코드 공통 미리보기 (오픈 그래프) -->
-    <meta property="og:title" content="🎲 1d100 주사위 판정기">
-    <meta property="og:description" content="TRPG 및 커뮤니티용 1d100 주사위를 굴리고 결과를 확인해보세요!">
+    <meta property="og:title" content="🎲 1d100 주사위 굴리기">
+    <meta property="og:description" content="1d100 주사위를 굴리고 결과를 확인해보세요!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
     <meta property="og:url" content="https://nope-903.github.io/dice">
     <meta property="og:type" content="website">
 
     <!-- 🌟 트위터(X) 전용 미리보기 (트위터 카드) -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="🎲 1d100 주사위 판정기">
-    <meta name="twitter:description" content="TRPG 및 커뮤니티용 1d100 주사위를 굴리고 결과를 확인해보세요!">
+    <meta name="twitter:title" content="🎲 1d100 주사위 굴리기">
+    <meta name="twitter:description" content="1d100 주사위를 굴리고 결과를 확인해보세요!">
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
 
     <!-- 카카오 SDK -->
@@ -76,7 +79,7 @@
 
         <label class="checkbox-container">
             <input type="checkbox" id="show-time-chk" checked>
-            주사위 굴린 시간 기록하기
+            주사위 굴린 시간 기록
         </label>
 
         <div id="dice-result" style="font-size: 64px; font-weight: bold; margin: 15px 0; color: inherit;">?</div>

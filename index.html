@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>주사위 굴리기</title>
-    <!-- 카카오 SDK 스크립트 로드 -->
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-l+xbElFbuPZ2CGXNgmYQvQp8jL5e8L5e8L5e8L5e8L5e8L5e8L5e8L5e8L5e8" crossorigin="anonymous"></script>
+    <!-- 카카오 SDK 스크립트 로드 (에러 유발하는 무결성 검증 속성 제거) -->
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script>
-        // 카카오 앱 키 초기화 (본인의 JavaScript 키로 변경해주세요)
+        // 본인의 JavaScript 키
         Kakao.init('c32d05a6a53f9fd3263531d9f8967fe0');
     </script>
 </head>
@@ -58,18 +58,19 @@
                 content: {
                     title: `🎲 1d${currentDiceType} 주사위 굴리기 결과!`,
                     description: `선택한 주사위: 1d${currentDiceType}\n나온 숫자: [ ${currentResult} ]`,
-                    imageUrl: 'https://your-domain.com/dice-image.png', // 주사위 대표 이미지 URL (필요시 수정)
                     link: {
-                        mobileWebUrl: 'https://nope-903.github.io/dice/',
-                        webUrl: 'https://nope-903.github.io/dice/',
+                        // 공유된 카드를 눌렀을 때 깃허브 웹앱으로 이동하도록 수정
+                        mobileWebUrl: 'https://nope-903.github.io/dice',
+                        webUrl: 'https://nope-903.github.io/dice',
                     },
                 },
                 buttons: [
                     {
                         title: '나도 던지러 가기',
                         link: {
-                            mobileWebUrl: 'https://nope-903.github.io/dice/',
-                            webUrl: 'https://nope-903.github.io/dice/',
+                            // '나도 던지러 가기' 버튼을 눌렀을 때 깃허브 웹앱으로 이동
+                            mobileWebUrl: 'https://nope-903.github.io/dice',
+                            webUrl: 'https://nope-903.github.io/dice',
                         },
                     },
                 ],

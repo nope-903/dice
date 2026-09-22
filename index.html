@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>다목적 주사위 판정기</title>
+    <title>ROLLING DICE</title>
 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 
-    <meta property="og:title" content="🎲 다목적 주사위 판정기">
+    <meta property="og:title" content="🎲 ROLLING DICE">
     <meta property="og:description" content="TRPG 및 커뮤니티용 커스텀 주사위를 굴리고 결과를 확인해보세요!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
     <meta property="og:url" content="https://nope-903.github.io/dice">
@@ -40,7 +40,7 @@
             width: 100%; 
             max-width: 450px; 
             background: #ffffff; 
-            padding: 30px 25px; 
+            padding: 35px 30px; 
             border-radius: 16px; 
             box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
             text-align: center; 
@@ -50,33 +50,38 @@
 
         .title {
             margin-top: 0; 
-            font-size: 1.4rem; 
-            margin-bottom: 25px;
+            font-size: 1.6rem; 
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
             word-break: keep-all;
+            color: #2c2c2c;
         }
 
+        /* 입력 그룹 정렬 개선 */
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 1rem;
-            gap: 10px;
+            font-size: 0.95rem;
+            gap: 15px; /* 라벨과 입력창 사이의 고정 간격 */
         }
 
+        /* 라벨의 너비를 고정하여 입력창이 일렬로 정렬되도록 함 */
         .input-group label {
             text-align: left;
-            font-weight: 500;
-            flex: 1;
+            font-weight: 600;
+            color: #555;
+            flex: 0 0 135px; /* 라벨이 차지하는 공간을 135px로 고정 */
             white-space: nowrap;
         }
         
         input[type="text"], input[type="number"] { 
-            padding: 10px; 
+            flex: 1; /* 남은 공간을 모두 차지하도록 함 */
+            width: 100%;
+            padding: 12px; 
             border: 1px solid #d4d4d4; 
             border-radius: 8px; 
-            flex: 1;
-            max-width: 160px; /* 수식 입력 공간 확보를 위해 약간 넓힘 */
             font-size: 16px; 
             text-align: center; 
             outline: none; 
@@ -86,7 +91,7 @@
         input:focus { border-color: #2eaadc; background: #fff; box-shadow: 0 0 0 2px rgba(46, 170, 220, 0.2); }
         
         .checkbox-container {
-            margin: 20px 0; 
+            margin: 25px 0 15px 0; 
             font-size: 0.9rem; 
             color: #666;
             display: flex; 
@@ -99,12 +104,13 @@
         .checkbox-container input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            accent-color: #2eaadc;
         }
         
         #dice-result {
-            font-size: 4rem; 
+            font-size: 4.5rem; 
             font-weight: 800; 
-            margin: 15px 0; 
+            margin: 10px 0; 
             color: #222;
         }
 
@@ -112,7 +118,7 @@
             font-size: 1.1rem; 
             font-weight: bold; 
             min-height: 30px; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             color: #999;
             line-height: 1.5;
         }
@@ -122,11 +128,11 @@
             color: #37352f; 
             border: 1px solid #e0e0ce; 
             border-radius: 8px; 
-            padding: 14px 20px; 
-            font-size: 1rem; 
+            padding: 15px 20px; 
+            font-size: 1.05rem; 
             cursor: pointer; 
             transition: all 0.2s; 
-            margin-top: 10px; 
+            margin-top: 12px; 
             width: 100%; 
             font-weight: 600;
             -webkit-tap-highlight-color: transparent;
@@ -145,17 +151,17 @@
 
 <body> 
     <div class="app-container">
-        <h1 class="title">🎲 다목적 주사위 판정기</h1>
+        <h1 class="title">🎲 ROLLING DICE</h1>
         
         <!-- 주사위 종류/수식 입력 칸 -->
         <div class="input-group">
-            <label for="dice-type">주사위 또는 수식:</label>
+            <label for="dice-type">주사위 또는 수식</label>
             <input type="text" id="dice-type" value="1d100" placeholder="예: 1d100+10, 3*15">
         </div>
 
-        <!-- 기능/특성(선택사항) 입력 칸 -->
+        <!-- 기능/특성(선택입력) 입력 칸 -->
         <div class="input-group">
-            <label for="target-value">기능/특성 (선택사항):</label>
+            <label for="target-value">기능/특성 (선택입력)</label>
             <input type="number" id="target-value" placeholder="예: 50" min="1">
         </div>
 
@@ -197,13 +203,11 @@
                 document.getElementById('dice-type').value = '1d100';
             }
 
-            // [오류 처리 1] 허용되지 않은 문자 입력 방지 (숫자, d, D, 사칙연산, 괄호, 공백만 허용)
             if (/[^0-9dD\+\-\*\/\(\)\s]/.test(rawInput)) {
                 alert("입력 오류: 올바른 주사위 기호나 수식이 아닙니다.\n(숫자, 주사위 기호(d/D), 기본 연산자(+, -, *, /)만 입력 가능합니다.)");
                 return;
             }
 
-            // [오류 처리 2] 'd' 뒤에 숫자가 없는 경우 방지 (예: '1d', '3*d' 등)
             if (/d(?![0-9])/i.test(rawInput)) {
                 alert("입력 오류: 주사위 기호 'd' 또는 'D' 뒤에는 반드시 숫자를 입력해야 합니다.\n(예: 1d100, d10)");
                 return;
@@ -211,8 +215,6 @@
 
             diceInputStr = rawInput;
 
-            // 주사위 표현(1d100 등)을 찾아 전부 무작위 값으로 굴린 뒤 치환
-            // 대소문자 무관(/i 옵션)
             let mathExpression = rawInput.replace(/(\d*)d(\d+)/gi, function(match, numDice, sides) {
                 let count = numDice ? parseInt(numDice) : 1;
                 let max = parseInt(sides);
@@ -223,7 +225,6 @@
                 return sum;
             });
 
-            // 문자열로 된 수식을 자바스크립트로 계산
             try {
                 currentResult = Math.floor(new Function('return ' + mathExpression)());
             } catch (e) {
@@ -231,7 +232,6 @@
                 return;
             }
 
-            // 결과 화면 표시
             document.getElementById('dice-result').innerText = currentResult;
             
             currentTargetValue = document.getElementById('target-value').value;
@@ -240,15 +240,13 @@
             const isTimeChecked = document.getElementById('show-time-chk').checked;
             rolledTimeText = isTimeChecked ? getFormattedTime() : '';
 
-            // CoC 등 특별 판정을 위해 입력식 내에 '100면체 주사위'가 주가 되는지 확인
             let diceMatch = rawInput.match(/d(\d+)/i);
             if (diceMatch) {
                 maxDice = parseInt(diceMatch[1]);
             } else {
-                maxDice = 100; // 단순 계산식인 경우 기본 100으로 간주
+                maxDice = 100;
             }
 
-            // 판정 로직 (CoC 100면체 룰 + 일반 룰)
             if (maxDice === 100 && currentTargetValue) {
                 let target = parseInt(currentTargetValue);
 

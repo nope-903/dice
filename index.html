@@ -2,127 +2,272 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>1d100 주사위 판정기</title>
+    <!-- 모바일 화면 비율 및 확대/축소 방지 대응 (입력창 터치 시 화면 커짐 방지) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>다목적 주사위 판정기</title>
+
+    <!-- 🎲 주사위 이모지 파비콘 설정 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+
+    <!-- 🌟 카카오톡, 디스코드 공통 미리보기 (오픈 그래프) -->
+    <meta property="og:title" content="🎲 다목적 주사위 판정기">
+    <meta property="og:description" content="TRPG 및 커뮤니티용 커스텀 주사위를 굴리고 결과를 확인해보세요!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
+    <meta property="og:url" content="https://nope-903.github.io/dice">
+    <meta property="og:type" content="website">
+
+    <!-- 🌟 트위터(X) 전용 미리보기 (트위터 카드) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="🎲 다목적 주사위 판정기">
+    <meta name="twitter:description" content="TRPG 및 커뮤니티용 커스텀 주사위를 굴리고 결과를 확인해보세요!">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1517554558231-1e967a5b3a62?q=80&w=600&auto=format&fit=crop">
+
     <!-- 카카오 SDK -->
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script>
-        // 정상 작동하는 앱 키 유지
         Kakao.init('c0d501bbd271a9800acbc4c63c9b75e8');
     </script>
     
     <style>
-        /* 기본 리셋 및 화면 중앙 정렬 */
+        * {
+            box-sizing: border-box;
+        }
         body { 
-            margin: 0; min-height: 100vh; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding-top: 50px; 
+            margin: 0; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start;
+            padding: 30px 10px; 
             background-color: #f7f7f5; 
             color: #37352f; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            overflow-x: hidden; /* 가로 스크롤 및 밀림 현상 완벽 차단 */
         }
         
-        /* 모던 화이트 (깔끔한 문서형 테마) 메인 컨테이너 */
         .app-container { 
-            width: 350px; background: #ffffff; padding: 30px; 
-            border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            text-align: center; border: 1px solid #e9e9e7;
+            width: 100%; 
+            max-width: 320px; /* 모바일 화면에 딱 맞는 컴팩트한 너비 */
+            background: #ffffff; 
+            padding: 25px 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
+            text-align: center; 
+            border: 1px solid #e9e9e7;
+            margin: 0 auto; /* 화면 정중앙 고정 */
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .input-group label {
+            text-align: left;
+            font-weight: 500;
         }
         
-        input { 
-            padding: 8px; border: 1px solid #e0e0ce; border-radius: 4px; 
-            width: 70px; font-size: 16px; text-align: center; outline: none; transition: border 0.2s;
+        input[type="text"], input[type="number"] { 
+            padding: 8px; 
+            border: 1px solid #e0e0ce; 
+            border-radius: 6px; 
+            width: 105px; 
+            font-size: 16px; /* 모바일 브라우저 자동 확대 방지 기준 사이즈 */
+            text-align: center; 
+            outline: none; 
+            transition: border 0.2s;
+            background: #fafaf8;
         }
-        input:focus { border-color: #2eaadc; }
+        input:focus { border-color: #2eaadc; background: #fff; }
+        
+        .checkbox-container {
+            margin: 15px 0; 
+            font-size: 13px; 
+            color: #555;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            cursor: pointer;
+        }
         
         button.action-btn { 
-            background: #f1f1ef; color: #37352f; border: 1px solid #e0e0ce; 
-            border-radius: 5px; padding: 10px 20px; font-size: 15px; 
-            cursor: pointer; transition: background 0.2s; margin-top: 10px; width: 100%; font-weight: 500;
+            background: #f1f1ef; 
+            color: #37352f; 
+            border: 1px solid #e0e0ce; 
+            border-radius: 6px; 
+            padding: 12px 20px; 
+            font-size: 15px; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+            margin-top: 8px; 
+            width: 100%; 
+            font-weight: 500;
+            -webkit-tap-highlight-color: transparent; /* 터치 시 파란 박스 제거 */
         }
-        button.action-btn:hover { background: #e9e9e7; }
+        button.action-btn:active { background: #e0e0de; }
         
-        /* 카카오 공유 버튼 디자인 */
         button#kakao-share-btn { 
-            background-color: #fee500 !important; color: #000 !important; 
-            border: none !important; font-weight: bold; font-family: sans-serif;
+            background-color: #fee500 !important; 
+            border-color: #fee500 !important;
+            color: #000 !important; 
+            font-weight: bold; 
         }
     </style>
 </head>
 
 <body> 
-    <!-- 주사위 앱 메인 컨테이너 -->
     <div class="app-container">
-        <h1 style="margin-top:0; font-size: 22px; margin-bottom: 20px;">🎲 1d100 판정기</h1>
+        <h1 style="margin-top:0; font-size: 20px; margin-bottom: 15px;">🎲 다목적 주사위 판정기</h1>
         
-        <div style="margin-bottom: 20px;">
-            <label for="target-value" style="font-size: 15px;">판정치 (1~100): </label>
-            <input type="number" id="target-value" placeholder="예:50" min="1" max="100">
+        <!-- 주사위 종류 자율 입력 칸 (대규모 패치 적용) -->
+        <div class="input-group">
+            <label for="dice-type">주사위 종류:</label>
+            <input type="text" id="dice-type" value="1d100" placeholder="예: 1d100, 1d10">
         </div>
 
-        <div id="dice-result" style="font-size: 64px; font-weight: bold; margin: 15px 0; color: inherit;">?</div>
-        <div id="judgment-result" style="font-size: 18px; font-weight: bold; min-height: 25px; margin-bottom: 20px; color: #999;">결과 대기 중...</div>
+        <!-- 목표치(판정치) 입력 칸 -->
+        <div class="input-group">
+            <label for="target-value">목표치 (선택):</label>
+            <input type="number" id="target-value" placeholder="예: 50" min="1">
+        </div>
+
+        <label class="checkbox-container">
+            <input type="checkbox" id="show-time-chk" checked>
+            주사위 굴린 시간 기록하기
+        </label>
+
+        <div id="dice-result" style="font-size: 52px; font-weight: bold; margin: 10px 0; color: inherit;">?</div>
+        <div id="judgment-result" style="font-size: 15px; font-weight: bold; min-height: 25px; margin-bottom: 15px; color: #999;">결과 대기 중...</div>
         
         <button class="action-btn" onclick="rollDice()">주사위 굴리기</button>
+        <button class="action-btn" id="copy-result-btn" onclick="copyResultText()" style="display: none;">결과 복사하기</button>
         <button class="action-btn" id="kakao-share-btn" onclick="shareToKakao()" style="display: none;">카카오톡으로 공유하기</button>
     </div>
 
     <script>
-        // 전역 변수
         let currentResult = 0;
+        let maxDice = 100;
+        let diceInputStr = '1d100';
         let judgmentText = '';
         let currentTargetValue = '';
+        let rolledTimeText = ''; 
 
-        // 주사위 굴리기 로직
+        function getFormattedTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}/${month}/${day} ${hours}:${minutes}`;
+        }
+
         function rollDice() {
-            currentResult = Math.floor(Math.random() * 100) + 1;
+            // 주사위 종류 파싱 (d숫자 인식)
+            diceInputStr = document.getElementById('dice-type').value.trim();
+            let match = diceInputStr.match(/d(\d+)/i);
+            if (match) {
+                maxDice = parseInt(match[1]);
+            } else {
+                maxDice = parseInt(diceInputStr) || 100;
+            }
+
+            // 랜덤 주사위 굴림
+            currentResult = Math.floor(Math.random() * maxDice) + 1;
             document.getElementById('dice-result').innerText = currentResult;
             
             currentTargetValue = document.getElementById('target-value').value;
             let judgmentResultElement = document.getElementById('judgment-result');
             
-            if (currentTargetValue) {
+            const isTimeChecked = document.getElementById('show-time-chk').checked;
+            rolledTimeText = isTimeChecked ? getFormattedTime() : '';
+
+            // 판정 로직
+            if (maxDice === 100 && currentTargetValue) {
                 let target = parseInt(currentTargetValue);
 
                 if (currentResult === 1) {
                     judgmentText = '대성공';
-                    judgmentResultElement.style.color = '#8e44ad'; // 대성공 (보라색)
+                    judgmentResultElement.style.color = '#0000FF'; 
                 } else if (currentResult === 100) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 대실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 } else if (target <= 50 && currentResult >= 96) {
                     judgmentText = '대실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 대실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 } else if (currentResult <= target / 5) {
                     judgmentText = '극단적 성공';
-                    judgmentResultElement.style.color = '#d35400'; // 극단적 성공 (오렌지색)
+                    judgmentResultElement.style.color = '#0000FF'; 
                 } else if (currentResult <= target / 2) {
                     judgmentText = '어려운 성공';
-                    judgmentResultElement.style.color = '#27ae60'; // 어려운 성공 (초록색)
+                    judgmentResultElement.style.color = '#0000FF'; 
                 } else if (currentResult <= target) {
                     judgmentText = '성공';
-                    judgmentResultElement.style.color = '#2980b9'; // 성공 (파란색)
+                    judgmentResultElement.style.color = '#0000FF'; 
                 } else {
                     judgmentText = '실패';
-                    judgmentResultElement.style.color = '#e74c3c'; // 실패 (빨간색)
+                    judgmentResultElement.style.color = '#e74c3c'; 
                 }
-
                 judgmentResultElement.innerHTML = `판정 결과: [ ${judgmentText} ]`;
             } else {
-                judgmentText = '미입력';
-                judgmentResultElement.innerHTML = '판정치 미입력 (단순 굴림)';
-                judgmentResultElement.style.color = '#999';
+                if (currentTargetValue) {
+                    let target = parseInt(currentTargetValue);
+                    if (currentResult <= target) {
+                        judgmentText = '성공';
+                        judgmentResultElement.style.color = '#0000FF';
+                    } else {
+                        judgmentText = '실패';
+                        judgmentResultElement.style.color = '#e74c3c';
+                    }
+                    judgmentResultElement.innerHTML = `판정 결과: [ ${judgmentText} ]`;
+                } else {
+                    judgmentText = '단순 굴림';
+                    judgmentResultElement.innerHTML = `단순 주사위 굴림 완료`;
+                    judgmentResultElement.style.color = '#555';
+                }
+            }
+
+            if (rolledTimeText) {
+                judgmentResultElement.innerHTML += `<br><span style="font-size: 13px; color: #888; font-weight: normal;">⏱️${rolledTimeText}</span>`;
             }
             
+            // 공유 버튼 활성화
+            document.getElementById('copy-result-btn').style.display = 'block';
             document.getElementById('kakao-share-btn').style.display = 'block';
         }
 
-        // 카카오톡 공유 로직
+        function copyResultText() {
+            let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
+            let textToCopy = `🎲 ${diceInputStr} 판정 결과: [ ${judgmentText} ]\n주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            
+            if (rolledTimeText) {
+                textToCopy += `\n⏱️${rolledTimeText}`;
+            }
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('결과가 클립보드에 복사되었습니다!');
+            }).catch(err => {
+                alert('복사에 실패했습니다.');
+            });
+        }
+
         function shareToKakao() {
+            let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
+            let descriptionString = `주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            if (rolledTimeText) {
+                descriptionString += `\n⏱️${rolledTimeText}`;
+            }
+
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `🎲 1d100 판정 결과: [ ${judgmentText} ]`,
-                    description: `주사위 눈금: ${currentResult}\n입력한 판정치: ${currentTargetValue || '미입력'}`,
+                    title: `🎲 ${diceInputStr} 판정 결과: [ ${judgmentText} ]`,
+                    description: descriptionString,
                     link: {
                         mobileWebUrl: 'https://nope-903.github.io/dice',
                         webUrl: 'https://nope-903.github.io/dice',

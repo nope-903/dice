@@ -58,26 +58,24 @@
             color: #2c2c2c;
         }
 
-        /* 입력 그룹 정렬 개선 */
         .input-group {
             margin-bottom: 18px;
             display: flex;
             align-items: center;
             font-size: 0.95rem;
-            gap: 15px; /* 라벨과 입력창 사이의 고정 간격 */
+            gap: 15px; 
         }
 
-        /* 라벨의 너비를 고정하여 입력창이 일렬로 정렬되도록 함 */
         .input-group label {
             text-align: left;
             font-weight: 600;
             color: #555;
-            flex: 0 0 135px; /* 라벨이 차지하는 공간을 135px로 고정 */
+            flex: 0 0 135px; 
             white-space: nowrap;
         }
         
         input[type="text"], input[type="number"] { 
-            flex: 1; /* 남은 공간을 모두 차지하도록 함 */
+            flex: 1; 
             width: 100%;
             padding: 12px; 
             border: 1px solid #d4d4d4; 
@@ -153,13 +151,11 @@
     <div class="app-container">
         <h1 class="title">🎲 ROLLING DICE</h1>
         
-        <!-- 주사위 종류/수식 입력 칸 -->
         <div class="input-group">
             <label for="dice-type">주사위 또는 수식</label>
             <input type="text" id="dice-type" value="1d100" placeholder="예: 1d100+10, 3*15">
         </div>
 
-        <!-- 기능/특성(선택입력) 입력 칸 -->
         <div class="input-group">
             <label for="target-value">기능/특성 (선택입력)</label>
             <input type="number" id="target-value" placeholder="예: 50" min="1">
@@ -301,7 +297,7 @@
 
         function copyResultText() {
             let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
-            let textToCopy = `🎲 ${diceInputStr} 굴림: [ ${judgmentText} ]\n주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            let textToCopy = `🎲 ${diceInputStr} 판정 결과: [ ${judgmentText} ]\n결과값: ${currentResult} (판정기준: ${targetDisplay})`;
             
             if (rolledTimeText) {
                 textToCopy += `\n⏱️ ${rolledTimeText}`;
@@ -316,7 +312,7 @@
 
         function shareToKakao() {
             let targetDisplay = currentTargetValue ? currentTargetValue : '미입력';
-            let descriptionString = `주사위수: ${currentResult} (판정기준: ${targetDisplay})`;
+            let descriptionString = `결과값: ${currentResult} (판정기준: ${targetDisplay})`;
             if (rolledTimeText) {
                 descriptionString += `\n⏱️ ${rolledTimeText}`;
             }
@@ -324,7 +320,7 @@
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `🎲 ${diceInputStr} 굴림: [ ${judgmentText} ]`,
+                    title: `🎲 ${diceInputStr} 판정 결과: [ ${judgmentText} ]`,
                     description: descriptionString,
                     link: {
                         mobileWebUrl: 'https://nope-903.github.io/dice',
